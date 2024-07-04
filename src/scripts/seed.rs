@@ -17,7 +17,7 @@ struct Tag {
 }
 
 #[derive(Deserialize)]
-struct Content {
+struct Article {
     title: String,
     slug: String,
     thumbnail: String,
@@ -33,7 +33,7 @@ struct Content {
 struct SeedData {
     authors: Vec<Author>,
     tags: Vec<Tag>,
-    content: Vec<Content>,
+    article: Vec<Article>,
 }
 
 async fn seed_data(pool: &PgPool) -> Result<(), Error> {
@@ -66,33 +66,33 @@ async fn seed_data(pool: &PgPool) -> Result<(), Error> {
         .await?;
     }
 
-    for content in seed_data.content {
-        let content_id = sqlx::query!(
+    for article in seed_data.article {
+        let article_id = sqlx::query!(
             r#"
-            INSERT INTO content (title, slug, thumbnail, image, description, body, author_id, is_active)
+            INSERT INTO article (title, slug, thumbnail, image, description, body, author_id, is_active)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id
             "#,
-            content.title,
-            content.slug,
-            content.thumbnail,
-            content.image,
-            content.description,
-            content.body,
-            content.author,
-            content.published
+            article.title,
+            article.slug,
+            article.thumbnail,
+            article.image,
+            article.description,
+            article.body,
+            article.author,
+            article.published
         )
         .fetch_one(pool)
         .await?
         .id;
 
-        for tag_id in content.tags {
+        for tag_id in article.tags {
             sqlx::query!(
                 r#"
-                INSERT INTO content_tags (content_id, tag_id)
+                INSERT INTO article_tags (article_id, tag_id)
                 VALUES ($1, $2)
                 "#,
-                content_id,
+                article_id,
                 tag_id
             )
             .execute(pool)
