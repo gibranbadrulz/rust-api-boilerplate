@@ -1,3 +1,7 @@
+use clap::Parser;
+use dotenv::dotenv;
+use sqlx::postgres::{PgPool, PgPoolOptions};
+use sqlx::Error;
 use std::fmt;
 
 #[derive(clap::ValueEnum, Clone, Debug, Copy)]
@@ -27,5 +31,19 @@ pub struct AppConfig {
     pub app_host: String,
 
     #[clap(long, env)]
-    pub seed: bool,
+    pub database_url: String,
+}
+
+impl AppConfig {
+    pub fn from_env() -> Self {
+        dotenv().ok();
+        Self::parse()
+    }
+
+    pub async fn create_pg_pool(&self) -> Result<PgPool, Error> {
+        PgPoolOptions::new()
+            .max_connections(15)
+            .connect(&self.database_url)
+            .await
+    }
 }
