@@ -11,7 +11,7 @@
     { "name": "Science", "slug": "science" },
     { "name": "Business", "slug": "business" }
   ],
-  "content": [
+  "article": [
     {
       "title": "Tech Innovations in 2024",
       "slug": "tech-innovations-2024",
